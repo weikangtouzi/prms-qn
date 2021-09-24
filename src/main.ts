@@ -1,4 +1,5 @@
 import { createApp } from 'vue'
+import '@/common/styles/reset.styl'
 import App from './App.vue'
 import router from './router'
 

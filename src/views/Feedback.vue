@@ -16,9 +16,9 @@
       <input placeholder="请填写" v-model="id"/>
       <span class="err" v-if="idErr">{{ idErr }}</span>
     </section>
-    <section>
+    <section @click="showPicker">
       <h3>学历</h3>
-      <input placeholder="请填写" :value="grade"/>
+      <input placeholder="请选择" :value="grade" disabled/>
       <span class="err" v-if="gradeErr">{{ gradeErr }}</span>
     </section>
     <section>
@@ -35,17 +35,22 @@
     </section>
     <div class="action">
       <span class="save" @click="save">保存,填写下一个</span>
-      <span class="submit">提交</span>
     </div>
+    <Picker ref="pickerRef"/>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, reactive, toRefs, ref } from 'vue'
+import Picker from '@/components/Picker.vue'
 
 export default defineComponent({
   name: 'FeedBack',
+  components: {
+    Picker
+  },
   setup () {
+    const pickerRef = ref<any>(null)
     const errMsg = reactive({
       nameErr: '',
       phoneErr: '',
@@ -53,12 +58,11 @@ export default defineComponent({
       gradeErr: '',
       skillsErr: ''
     })
-    const formData = ref<any[]>([])
     const currentData = reactive({
       name: '',
       phone: '',
       id: '',
-      grade: '1',
+      grade: '',
       skills: ['']
     })
     const errors = toRefs(errMsg)
@@ -94,7 +98,6 @@ export default defineComponent({
         flag = false
       }
       if (flag) {
-        formData.value.push(currentData)
         currentData.grade = ''
         currentData.name = ''
         currentData.id = ''
@@ -112,13 +115,19 @@ export default defineComponent({
     const minusSkill = (idx:number) => {
       currentData.skills.splice(idx, 1)
     }
+    const showPicker = () => {
+      // eslint-disable-next-line no-unused-expressions
+      pickerRef?.value?.show()
+    }
     return {
       ...errors,
       ...current,
       skillChange,
       save,
+      pickerRef,
       addSkill,
-      minusSkill
+      minusSkill,
+      showPicker
     }
   }
 })
@@ -128,7 +137,7 @@ export default defineComponent({
 @import "../common/stylus/variable.styl"
 .feedback {
   .title {
-    margin-top (22 /$rem)
+    padding-top (22 /$rem)
     font-size: (36 / $rem);
     font-family: PingFang SC;
     font-weight: 600;
@@ -203,12 +212,12 @@ export default defineComponent({
   .action {
     display flex
     font-size (26 / $rem)
-    padding 0 (80 /$rem)
+    padding 0 (160 /$rem)
     color white
     margin-top (50 /$rem)
 
     .save {
-      flex 2
+      flex 1
       cursor pointer
       border-radius: (8 /$rem);
       line-height (80 /$rem)

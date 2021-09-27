@@ -11,7 +11,7 @@
       </div>
       <div class="section">
         <input placeholder="请输入验证码" v-model="code"/>
-        <span class="code" @click="getCode">{{ codeMsg }}</span>
+        <span class="code" @click="sendMsg">{{ codeMsg }}</span>
         <span class="error" v-if="errorMsg">{{errorMsg}}</span>
       </div>
       <div class="action">
@@ -23,22 +23,78 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
+import gql from 'graphql-tag'
 
 export default defineComponent({
   name: 'Home',
+  methods: {
+    sendMsg: function () {
+      const sms = gql`query getSms($phoneNumber:String!){
+     sendSms(phoneNumber:$phoneNumber)
+     }`
+      this.checkCode().then((res) => {
+        if (res !== 'error') {
+          this.$apollo.query({
+            query: sms,
+            variables: {
+              phoneNumber: res
+            }
+          }
+          ).then((res) => {
+            const { data } = res
+            const msg = JSON.parse(data.sendSms)
+            if (msg.body.message === '发送成功') {
+              this.startTimeOut()
+              console.log('获取验证码成功')
+            } else {
+              this.errorMsg = msg.body.message
+            }
+          })
+        }
+      })
+    },
+    login: function () {
+      this.errorMsg = ''
+      if (!/^[1]([2-9])[0-9]{9}$/.test(this.phone)) {
+        this.errorMsg = '请输入正确手机号'
+        return
+      }
+      if (!/^[0-9]{6}$/.test(this.code)) {
+        this.errorMsg = '请输入正确验证码'
+        return
+      }
+      console.log('通过格式认证')
+      const loginReg = gql`query checkCode($phoneNumber:String!,$verifyCode:String!){
+  phoneNumberCheck(phoneNumber:$phoneNumber,verifyCode:$verifyCode)
+       }`
+      this.$apollo.query({
+        query: loginReg,
+        variables: {
+          phoneNumber: this.phone,
+          verifyCode: this.code
+        }
+      }
+      ).then(() => {
+        console.log('获取验证码成功')
+      }).catch(error => {
+        console.log(error)
+      })
+    }
+  },
   setup () {
     const phone = ref('')
     const code = ref('')
     const errorMsg = ref('')
     const codeMsg = ref('获取验证码')
-    const getCode = () => {
+
+    const checkCode = () => {
       if (/^[1]([2-9])[0-9]{9}$/.test(phone.value)) {
         errorMsg.value = ''
         console.log('通过')
-        startTimeOut()
-        // todo 获取验证码
+        return Promise.resolve(phone.value)
       } else {
         errorMsg.value = '请输入正确手机号'
+        return Promise.resolve('error')
       }
     }
     // 倒计时
@@ -55,22 +111,12 @@ export default defineComponent({
         }
       }, 1000)
     }
-    const login = () => {
-      errorMsg.value = ''
-      if (!/^[1]([2-9])[0-9]{9}$/.test(phone.value)) {
-        errorMsg.value = '请输入正确手机号'
-        return
-      }
-      if (!/^[0-9]{4}$/.test(code.value)) {
-        errorMsg.value = '请输入正确验证码'
-      }
-    }
     return {
       phone,
       errorMsg,
       codeMsg,
-      getCode,
-      login,
+      startTimeOut,
+      checkCode,
       code
     }
   }

@@ -209,7 +209,7 @@ export default {
   text-align: center
   font-size: 14px
   background-color: rgba(37, 38, 45, .4)
-  &.picker-fade-enter, &.picker-fade-leave-active
+  &.picker-fade-enter-from, &.picker-fade-leave-to
     opacity: 0
   &.picker-fade-enter-active, &.picker-fade-leave-active
     transition: all .3s ease-in-out
@@ -221,7 +221,7 @@ export default {
     width: 100%
     height: 273px
     background: white
-    &.picker-move-enter, &.picker-move-leave-active
+    &.picker-move-enter-from, &.picker-move-leave-to
       transform: translate3d(0, 273px, 0)
     &.picker-move-enter-active, &.picker-move-leave-active
       transition: all .3s ease-in-out

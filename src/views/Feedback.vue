@@ -8,12 +8,12 @@
     </section>
     <section>
       <h3>手机号码</h3>
-      <input placeholder="请填写" v-model="phone"/>
+      <input placeholder="请填写" v-model="number"/>
       <span class="err" v-if="phoneErr">{{ phoneErr }}</span>
     </section>
     <section>
       <h3>身份证号</h3>
-      <input placeholder="请填写" v-model="id"/>
+      <input placeholder="请填写" v-model="idCardNum"/>
       <span class="err" v-if="idErr">{{ idErr }}</span>
     </section>
     <section @click="showPicker">
@@ -33,78 +33,119 @@
         <span class="err" v-if="skillsErr">{{ skillsErr }}</span>
       </div>
     </section>
+    <div class="formErr" v-if="formErr">{{ formErr }}</div>
     <div class="action">
       <span class="save" @click="save">保存,填写下一个</span>
+      <span class="submit" @click="complete" v-if="firstSend">完成</span>
     </div>
-    <Picker ref="pickerRef"/>
+    <Picker ref="pickerRef" @select="pickerSelect"/>
+     <p v-if="saveSuccess" class="saveSuccess">保存成功</p>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, reactive, toRefs, ref } from 'vue'
 import Picker from '@/components/Picker.vue'
+import gql from 'graphql-tag'
 
 export default defineComponent({
   name: 'FeedBack',
   components: {
     Picker
   },
+  methods: {
+    complete: function () {
+      this.$router.push('/success')
+    },
+    save: function () {
+      const insertReg = gql`mutation insertPerson($info:PersonalData!){
+  insertPersonalData(info:$info){
+    statusCode,msg
+  }
+}`
+      // 验证当前表单内容的合法性
+      // 同步到data
+      let flag = true
+      this.nameErr = ''
+      this.idErr = ''
+      this.formErr = ''
+      this.phoneErr = ''
+      this.skillsErr = ''
+      this.gradeErr = ''
+      if (!/^[\u4E00-\u9FA5]{2,4}$/.test(this.name)) {
+        this.nameErr = '请输入正确姓名'
+        flag = false
+      }
+      if (!/^[1]([2-9])[0-9]{9}$/.test(this.number)) {
+        this.phoneErr = '请输入正确手机号'
+        flag = false
+      }
+      if (!/^([1-6][1-9]|50)\d{4}(18|19|20)\d{2}((0[1-9])|10|11|12)(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/.test(this.idCardNum)) {
+        this.idErr = '请输入正确身份证号'
+        flag = false
+      }
+      if (!this.grade) {
+        this.gradeErr = '请选择学历'
+        flag = false
+      }
+      if (this.skills.filter(s => !!s).length <= 0) {
+        this.skillsErr = '请至少添加一项技能'
+        flag = false
+      }
+      if (flag) {
+        // 通过验证
+        this.$apollo.mutate({
+          mutation: insertReg,
+          variables: {
+            info: {
+              name: this.name,
+              idCardNum: this.idCardNum,
+              number: this.number,
+              education: this.education,
+              skills: this.skills
+            }
+          }
+        }).then(res => {
+          this.saveSuccess = true
+          setTimeout(() => {
+            this.saveSuccess = false
+          }, 1500)
+          this.firstSend = true
+          this.grade = ''
+          this.education = ''
+          this.name = ''
+          this.idCardNum = ''
+          this.number = ''
+          this.skills = ['']
+        }).catch(err => {
+          this.formErr = '表单填写有误，请检测输入'
+          console.error(err)
+        })
+      }
+    }
+  },
   setup () {
     const pickerRef = ref<any>(null)
+    const saveSuccess = ref(false)
+    const firstSend = ref(false)
     const errMsg = reactive({
       nameErr: '',
       phoneErr: '',
       idErr: '',
       gradeErr: '',
-      skillsErr: ''
+      skillsErr: '',
+      formErr: ''
     })
     const currentData = reactive({
       name: '',
-      phone: '',
-      id: '',
+      number: '',
+      idCardNum: '',
       grade: '',
+      education: '',
       skills: ['']
     })
     const errors = toRefs(errMsg)
     const current = toRefs(currentData)
-    // 保存
-    const save = () => {
-      // 验证当前表单内容的合法性
-      // 同步到data
-      let flag = true
-      errors.nameErr.value = ''
-      errors.idErr.value = ''
-      errors.phoneErr.value = ''
-      errors.skillsErr.value = ''
-      errors.gradeErr.value = ''
-      if (!/^[\u4E00-\u9FA5]{2,4}$/.test(current.name.value)) {
-        errors.nameErr.value = '请输入正确姓名'
-        flag = false
-      }
-      if (!/^[1]([2-9])[0-9]{9}$/.test(current.phone.value)) {
-        errors.phoneErr.value = '请输入正确手机号'
-        flag = false
-      }
-      if (!/^([1-6][1-9]|50)\d{4}(18|19|20)\d{2}((0[1-9])|10|11|12)(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/.test(current.id.value)) {
-        errors.idErr.value = '请输入正确身份证号'
-        flag = false
-      }
-      if (!current.grade.value) {
-        errors.gradeErr.value = '请选择学历'
-        flag = false
-      }
-      if (current.skills.value.filter(s => !!s).length <= 0) {
-        errors.skillsErr.value = '请至少添加一项技能'
-        flag = false
-      }
-      if (flag) {
-        currentData.grade = ''
-        currentData.name = ''
-        currentData.id = ''
-        currentData.phone = ''
-        currentData.skills = ['']
-      }
-    }
     const skillChange = (e: { target: HTMLInputElement }, idx: number) => {
       currentData.skills[idx] = e.target.value
     }
@@ -112,22 +153,28 @@ export default defineComponent({
       currentData.skills.push('')
     }
 
-    const minusSkill = (idx:number) => {
+    const minusSkill = (idx: number) => {
       currentData.skills.splice(idx, 1)
     }
     const showPicker = () => {
       // eslint-disable-next-line no-unused-expressions
       pickerRef?.value?.show()
     }
+    const pickerSelect = (idx: number, item: { text: string, value: string }) => {
+      currentData.grade = item.text
+      currentData.education = item.value
+    }
     return {
       ...errors,
       ...current,
       skillChange,
-      save,
       pickerRef,
       addSkill,
+      saveSuccess,
       minusSkill,
-      showPicker
+      showPicker,
+      firstSend,
+      pickerSelect
     }
   }
 })
@@ -136,6 +183,27 @@ export default defineComponent({
 <style lang="stylus" scoped>
 @import "../common/stylus/variable.styl"
 .feedback {
+  .saveSuccess{
+    position fixed
+    width (200 / $rem)
+    top (20 / $rem)
+    font-size (24 / $rem)
+    left 50%
+    transform translateX(-50%)
+    background white
+    box-shadow 0 0 10px #c4c2c2
+    border-radius 3px
+    padding 8px
+    color #57DE9E
+    font-weight bold
+  }
+  .formErr{
+    color #fc3131
+    text-align left
+    margin-top 12px
+    text-indent 12px
+    font-size: (24 / $rem);
+  }
   .title {
     padding-top (22 /$rem)
     font-size: (36 / $rem);
@@ -188,6 +256,7 @@ export default defineComponent({
     .skill {
       .ss {
         display flex
+
         span {
           width 50px
           text-align right
@@ -212,12 +281,12 @@ export default defineComponent({
   .action {
     display flex
     font-size (26 / $rem)
-    padding 0 (160 /$rem)
+    padding 0 (80 /$rem)
     color white
     margin-top (50 /$rem)
 
     .save {
-      flex 1
+      flex 2
       cursor pointer
       border-radius: (8 /$rem);
       line-height (80 /$rem)

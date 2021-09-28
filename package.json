@@ -12,6 +12,7 @@
     "@better-scroll/core": "^2.4.2",
     "@better-scroll/wheel": "^2.4.2",
     "@vue/apollo-option": "^4.0.0-alpha.15",
+    "apollo-link-context": "^1.0.20",
     "core-js": "^3.6.5",
     "graphql": "^15.6.0",
     "graphql-tag": "^2.12.5",

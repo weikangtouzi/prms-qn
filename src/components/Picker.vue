@@ -104,7 +104,7 @@ export default {
       this.hide()
       const currentSelectedIndex = this.selectedIndex = this.wheel.getSelectedIndex()
       this.selectedText = `${this.pickerData[currentSelectedIndex].text}-${currentSelectedIndex}`
-      this.$emit(EVENT_SELECT, currentSelectedIndex)
+      this.$emit(EVENT_SELECT, currentSelectedIndex, DATA[currentSelectedIndex])
     },
     _cancel () {
       this.wheel.restorePosition()

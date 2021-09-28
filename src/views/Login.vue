@@ -43,7 +43,7 @@ export default defineComponent({
           ).then((res) => {
             const { data } = res
             const msg = JSON.parse(data.sendSms)
-            if (msg.body.message === '发送成功') {
+            if (msg.body.message.toUpperCase() === 'OK') {
               this.startTimeOut()
               console.log('获取验证码成功')
             } else {
@@ -64,6 +64,7 @@ export default defineComponent({
         return
       }
       console.log('通过格式认证')
+      localStorage.setItem('phone', '')
       const loginReg = gql`query checkCode($phoneNumber:String!,$verifyCode:String!){
   phoneNumberCheck(phoneNumber:$phoneNumber,verifyCode:$verifyCode)
        }`
@@ -75,8 +76,11 @@ export default defineComponent({
         }
       }
       ).then(() => {
-        console.log('获取验证码成功')
+        localStorage.setItem('phone', this.phone)
+        this.$router.push('/feedback')
+        console.log('验证码验证成功')
       }).catch(error => {
+        this.errorMsg = '验证码不正确'
         console.log(error)
       })
     }
@@ -119,6 +123,9 @@ export default defineComponent({
       checkCode,
       code
     }
+  },
+  created () {
+    localStorage.setItem('phone', '')
   }
 })
 </script>

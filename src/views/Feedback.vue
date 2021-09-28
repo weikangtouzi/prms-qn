@@ -242,6 +242,7 @@ export default defineComponent({
       display inline-block
       border none
       outline none
+      background white
       box-sizing border-box
       color #3b3a3a
       font-size (30 / $rem)

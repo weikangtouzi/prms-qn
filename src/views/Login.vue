@@ -36,12 +36,14 @@ export default defineComponent({
         if (res !== 'error') {
           this.$apollo.query({
             query: sms,
+            fetchPolicy: 'no-cache',
             variables: {
               phoneNumber: res
             }
           }
           ).then((res) => {
             const { data } = res
+            console.log(data)
             const msg = JSON.parse(data.sendSms)
             if (msg.body.message.toUpperCase() === 'OK') {
               this.startTimeOut()
@@ -70,6 +72,7 @@ export default defineComponent({
        }`
       this.$apollo.query({
         query: loginReg,
+        fetchPolicy: 'no-cache',
         variables: {
           phoneNumber: this.phone,
           verifyCode: this.code
@@ -125,7 +128,7 @@ export default defineComponent({
     }
   },
   created () {
-    localStorage.setItem('phone', '')
+    // localStorage.setItem('phone', '')
   }
 })
 </script>
@@ -189,6 +192,7 @@ export default defineComponent({
          position absolute
          display inline-block
          width: (160 / $rem)
+         cursor pointer
          height: (40 / $rem)
          line-height: (40 / $rem)
          background: linear-gradient(90deg, #54D693, #81E3AE);

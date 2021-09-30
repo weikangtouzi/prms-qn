@@ -8,7 +8,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
     name: 'index',
-    redirect: '/login'
+    redirect: '/feedback'
   },
   {
     path: '/login',
@@ -31,6 +31,21 @@ const router = createRouter({
   // history: createWebHashHistory(process.env.BASE_URL),
   history: createWebHashHistory(),
   routes
+})
+router.beforeEach((to, from, next) => {
+  // ...
+  // 返回 false 以取消导航
+  if (to.fullPath === '/feedback') {
+    if (!localStorage.getItem('phone')) {
+      next({ name: 'Login' })
+    }
+  }
+  if (to.fullPath === '/login') {
+    if (localStorage.getItem('phone')) {
+      next({ name: 'Feedback' })
+    }
+  }
+  next()
 })
 
 export default router

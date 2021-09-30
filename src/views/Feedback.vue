@@ -3,30 +3,30 @@
     <div class="title">添加个人信息</div>
     <section>
       <h3>姓名</h3>
-      <input placeholder="请填写" v-model="name"/>
+      <input placeholder="请填写真实姓名" v-model="name"/>
       <span class="err" v-if="nameErr">{{ nameErr }}</span>
     </section>
     <section>
       <h3>手机号码</h3>
-      <input placeholder="请填写" v-model="number"/>
+      <input placeholder="请填写11位手机号码" v-model="number"/>
       <span class="err" v-if="phoneErr">{{ phoneErr }}</span>
     </section>
     <section>
       <h3>身份证号</h3>
-      <input placeholder="请填写" v-model="idCardNum"/>
+      <input placeholder="请填写18位身份证号码" v-model="idCardNum"/>
       <span class="err" v-if="idErr">{{ idErr }}</span>
     </section>
     <section @click="showPicker">
       <h3>学历</h3>
-      <input placeholder="请选择" :value="grade" disabled/>
+      <input placeholder="请选择学历信息" :value="grade" disabled/>
       <span class="err" v-if="gradeErr">{{ gradeErr }}</span>
     </section>
     <section>
       <h3>工作技能</h3>
-      <span>请填写你会的工作技能，比如：电工、木工、会计</span>
+      <p class="tips">请填写你会的工作技能，比如：电工、木工、会计</p>
       <div class="skill">
         <div v-for="(item,idx) in skills" :key="idx" class="ss">
-          <input placeholder="请填写" @input="(e)=>skillChange(e,idx)" :value="item"/>
+          <input :placeholder="idx===0?'一项功能技能一个框，多个请点击右侧 +':'请输入工作技能'" @input="(e)=>skillChange(e,idx)" :value="item"/>
           <span @click="addSkill" v-if="idx===0"><img :src="require('@/assets/add.png')" alt="img"/></span>
           <span @click="minusSkill(idx)" v-else><img :src="require('@/assets/minus.png')" alt="img"/></span>
         </div>
@@ -96,6 +96,7 @@ export default defineComponent({
         // 通过验证
         this.$apollo.mutate({
           mutation: insertReg,
+          fetchPolicy: 'no-cache',
           variables: {
             info: {
               name: this.name,
@@ -218,7 +219,11 @@ export default defineComponent({
     padding (32 /$rem) (22 / $rem)
     text-align left
     position relative
-
+    .tips {
+      font-size (22 / $rem)
+      color #57DE9E
+      margin-bottom (10/ $rem)
+    }
     .err {
       position absolute
       display inline-block
@@ -245,7 +250,7 @@ export default defineComponent({
       background white
       box-sizing border-box
       color #3b3a3a
-      font-size (30 / $rem)
+      font-size (28 / $rem)
       width 100%
       height 24px
 

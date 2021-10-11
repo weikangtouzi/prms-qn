@@ -13,7 +13,7 @@
     </section>
     <section>
       <h3>身份证号</h3>
-      <input placeholder="请填写18位身份证号码" v-model="idCardNum"/>
+      <input placeholder="请填写18位身份证号码" v-model="idCardNum" @blur="onIdCardBlur"/>
       <span class="err" v-if="idErr">{{ idErr }}</span>
     </section>
     <section @click="showPicker">
@@ -54,20 +54,47 @@ export default defineComponent({
     Picker
   },
   methods: {
+    onIdCardBlur: function (e: { target: HTMLInputElement }) {
+      this.idErr = ''
+      const val = e.target.value
+      if (!/^([1-6][1-9]|50)\d{4}(18|19|20)\d{2}((0[1-9])|10|11|12)(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/.test(val)) {
+        this.idErr = '请输入正确身份证号'
+      } else {
+        // 身份证查重
+        const idCheck = gql`query idCheck($num:String!){
+  checkIdCardNumber(num:$num)
+       }`
+        this.$apollo.query({
+          query: idCheck,
+          fetchPolicy: 'no-cache',
+          variables: {
+            num: val
+          }
+        }
+        ).then((e) => {
+          if (e?.data?.checkIdCardNumber) {
+
+          } else {
+            this.idErr = '该身份证号已被录入或有误'
+          }
+        }).catch(error => {
+          this.idErr = '请输入正确身份证号'
+          console.log(error)
+        })
+      }
+    },
     complete: function () {
       this.$router.push('/success')
     },
     save: function () {
       const insertReg = gql`mutation insertPerson($info:PersonalData!){
-  insertPersonalData(info:$info){
-    statusCode,msg
-  }
+  insertPersonalData(info:$info)
 }`
       // 验证当前表单内容的合法性
       // 同步到data
       let flag = true
       this.nameErr = ''
-      this.idErr = ''
+      // this.idErr = ''
       this.formErr = ''
       this.phoneErr = ''
       this.skillsErr = ''
@@ -80,9 +107,11 @@ export default defineComponent({
         this.phoneErr = '请输入正确手机号'
         flag = false
       }
-      if (!/^([1-6][1-9]|50)\d{4}(18|19|20)\d{2}((0[1-9])|10|11|12)(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/.test(this.idCardNum)) {
-        this.idErr = '请输入正确身份证号'
-        flag = false
+      if (!this.idErr) {
+        if (!/^([1-6][1-9]|50)\d{4}(18|19|20)\d{2}((0[1-9])|10|11|12)(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/.test(this.idCardNum)) {
+          this.idErr = '请输入正确身份证号'
+          flag = false
+        }
       }
       if (!this.grade) {
         this.gradeErr = '请选择学历'

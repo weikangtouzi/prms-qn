@@ -1,6 +1,6 @@
 <template>
   <div class="feedback">
-    <div class="title">添加个人信息</div>
+    <div class="title">添加个人信息<span class="count">（已填{{ count }}份）</span></div>
     <section>
       <h3>姓名</h3>
       <input placeholder="请填写真实姓名" v-model="name"/>
@@ -45,6 +45,7 @@
 
 <script lang="ts">
 import { defineComponent, reactive, toRefs, ref } from 'vue'
+import { useCount } from '@/common/js/hook'
 import Picker from '@/components/Picker.vue'
 import gql from 'graphql-tag'
 
@@ -61,20 +62,18 @@ export default defineComponent({
         this.idErr = '请输入正确身份证号'
       } else {
         // 身份证查重
-        const idCheck = gql`query idCheck($num:String!){
-  checkIdCardNumber(num:$num)
+        const idCheck = gql`query idCheck($idCardNum:String!){
+  checkIdCardNumber(idCardNum:$idCardNum)
        }`
         this.$apollo.query({
           query: idCheck,
           fetchPolicy: 'no-cache',
           variables: {
-            num: val
+            idCardNum: val
           }
         }
         ).then((e) => {
           if (e?.data?.checkIdCardNumber) {
-
-          } else {
             this.idErr = '该身份证号已被录入或有误'
           }
         }).catch(error => {
@@ -136,6 +135,8 @@ export default defineComponent({
             }
           }
         }).then(res => {
+          this.setCount(res.data.insertPersonalData)
+          localStorage.setItem('count', res.data.insertPersonalData)
           this.saveSuccess = true
           setTimeout(() => {
             this.saveSuccess = false
@@ -174,6 +175,10 @@ export default defineComponent({
       education: '',
       skills: ['']
     })
+
+    const { count, setCount } = useCount()
+    const c = Number(localStorage.getItem('count'))
+    setCount(c)
     const errors = toRefs(errMsg)
     const current = toRefs(currentData)
     const skillChange = (e: { target: HTMLInputElement }, idx: number) => {
@@ -204,7 +209,9 @@ export default defineComponent({
       minusSkill,
       showPicker,
       firstSend,
-      pickerSelect
+      pickerSelect,
+      count,
+      setCount
     }
   }
 })
@@ -240,6 +247,10 @@ export default defineComponent({
     font-family: PingFang SC;
     font-weight: 600;
     color: #333333;
+    .count{
+      font-size: (28 / $rem);
+      color #57DE9E
+    }
   }
 
   section {

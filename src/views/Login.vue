@@ -1,9 +1,8 @@
 <template>
   <div class="login">
     <div class="logo">
-      <img alt="logo" :src="require('@/assets/logo.png')"/>
+      劳动信息普查表
     </div>
-    <h5>为您提供优质的人力资源服务</h5>
     <div class="title">验证码登录</div>
     <div class="form">
       <div class="section">
@@ -23,6 +22,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
+import { useCount } from '@/common/js/hook'
 import gql from 'graphql-tag'
 
 export default defineComponent({
@@ -78,8 +78,10 @@ export default defineComponent({
           verifyCode: this.code
         }
       }
-      ).then(() => {
+      ).then((res) => {
+        this.setCount(res.data.phoneNumberCheck)
         localStorage.setItem('phone', this.phone)
+        localStorage.setItem('count', res.data.phoneNumberCheck)
         this.$router.push('/feedback')
         console.log('验证码验证成功')
       }).catch(error => {
@@ -93,7 +95,7 @@ export default defineComponent({
     const code = ref('')
     const errorMsg = ref('')
     const codeMsg = ref('获取验证码')
-
+    const { count, setCount } = useCount()
     const checkCode = () => {
       if (/^[1]([2-9])[0-9]{9}$/.test(phone.value)) {
         errorMsg.value = ''
@@ -124,7 +126,9 @@ export default defineComponent({
       codeMsg,
       startTimeOut,
       checkCode,
-      code
+      code,
+      count,
+      setCount
     }
   },
   created () {
@@ -141,6 +145,8 @@ export default defineComponent({
    padding-top: (72 / $rem);
   .logo{
     height (87 / $rem)
+    font-size (62 / $rem)
+    color #54D693
     img{
       vertical-align top
       width (265 / $rem)

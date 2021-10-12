@@ -12,7 +12,7 @@
       <span class="err" v-if="phoneErr">{{ phoneErr }}</span>
     </section>
     <section>
-      <h3>地址</h3>
+      <h3>籍贯</h3>
       <input placeholder="请填写籍贯信息" v-model="city"/>
       <span class="err" v-if="cityErr">{{ cityErr }}</span>
     </section>
@@ -108,8 +108,8 @@ export default defineComponent({
         this.nameErr = '请输入正确姓名'
         flag = false
       }
-      if (!/^.{2,100}$/.test(this.city)) {
-        this.cityErr = '请输入地址'
+      if (!/^[\u4E00-\u9FA5]{2,50}$/.test(this.city)) {
+        this.cityErr = '请输入正确的籍贯信息'
         flag = false
       }
       if (!/^[1]([2-9])[0-9]{9}$/.test(this.number)) {

@@ -12,6 +12,11 @@
       <span class="err" v-if="phoneErr">{{ phoneErr }}</span>
     </section>
     <section>
+      <h3>地址</h3>
+      <input placeholder="请填写籍贯信息" v-model="city"/>
+      <span class="err" v-if="cityErr">{{ cityErr }}</span>
+    </section>
+    <section>
       <h3>身份证号</h3>
       <input placeholder="请填写18位身份证号码" v-model="idCardNum" @blur="onIdCardBlur"/>
       <span class="err" v-if="idErr">{{ idErr }}</span>
@@ -98,8 +103,13 @@ export default defineComponent({
       this.phoneErr = ''
       this.skillsErr = ''
       this.gradeErr = ''
+      this.cityErr = ''
       if (!/^[\u4E00-\u9FA5]{2,4}$/.test(this.name)) {
         this.nameErr = '请输入正确姓名'
+        flag = false
+      }
+      if (!/^.{2,100}$/.test(this.city)) {
+        this.cityErr = '请输入地址'
         flag = false
       }
       if (!/^[1]([2-9])[0-9]{9}$/.test(this.number)) {
@@ -130,6 +140,7 @@ export default defineComponent({
               name: this.name,
               idCardNum: this.idCardNum,
               number: this.number,
+              city: this.city,
               education: this.education,
               skills: this.skills
             }
@@ -161,6 +172,7 @@ export default defineComponent({
     const firstSend = ref(false)
     const errMsg = reactive({
       nameErr: '',
+      cityErr: '',
       phoneErr: '',
       idErr: '',
       gradeErr: '',
@@ -169,6 +181,7 @@ export default defineComponent({
     })
     const currentData = reactive({
       name: '',
+      city: '',
       number: '',
       idCardNum: '',
       grade: '',

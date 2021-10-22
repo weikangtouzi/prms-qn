@@ -68,7 +68,7 @@ export default defineComponent({
       } else {
         const year = Number(val.substring(6, 10))
         if (year > 2005 || year < 1961) {
-          this.idErr = '年龄不得小于16周岁或大于60周岁'
+          this.idErr = '仅接受16到60岁的有效劳动力信息'
           return
         }
         // 身份证查重
@@ -143,7 +143,7 @@ export default defineComponent({
         } else {
           const year = Number(this.idCardNum.substring(6, 10))
           if (year > 2005 || year < 1961) {
-            this.idErr = '年龄不得小于16周岁或大于60周岁'
+            this.idErr = '仅接受16到60岁的有效劳动力信息'
             flag = false
           }
         }

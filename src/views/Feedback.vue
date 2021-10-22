@@ -120,7 +120,15 @@ export default defineComponent({
         if (!/^([1-6][1-9]|50)\d{4}(18|19|20)\d{2}((0[1-9])|10|11|12)(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/.test(this.idCardNum)) {
           this.idErr = '请输入正确身份证号'
           flag = false
+        } else {
+          const year = Number(this.idCardNum.substring(6, 10))
+          if (year > 2005 || year < 1961) {
+            this.idErr = '年龄不得小于16周岁或大于60周岁'
+            flag = false
+          }
         }
+      } else {
+        flag = false
       }
       if (!this.grade) {
         this.gradeErr = '请选择学历'

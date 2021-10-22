@@ -66,6 +66,11 @@ export default defineComponent({
       if (!/^([1-6][1-9]|50)\d{4}(18|19|20)\d{2}((0[1-9])|10|11|12)(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/.test(val)) {
         this.idErr = '请输入正确身份证号'
       } else {
+        const year = Number(val.substring(6, 10))
+        if (year > 2005 || year < 1961) {
+          this.idErr = '年龄不得小于16周岁或大于60周岁'
+          return
+        }
         // 身份证查重
         const idCheck = gql`query idCheck($idCardNum:String!){
   checkIdCardNumber(idCardNum:$idCardNum)
@@ -83,8 +88,23 @@ export default defineComponent({
           }
         }).catch(error => {
           this.idErr = '请输入正确身份证号'
-          console.log(error)
+          console.log(error.graphQLErrors)
         })
+        // this.$apollo.addSmartQuery('checkId', {
+        //   query: idCheck,
+        //   variables: {
+        //     idCardNum: val
+        //   },
+        //   // 响应结果
+        //   result (response) {
+        //     console.log(response)
+        //   },
+        //   // 错误处理
+        //   error (err) {
+        //     console.log(111, err.graphQLErrors)
+        //   }
+        // }
+        // )
       }
     },
     complete: function () {

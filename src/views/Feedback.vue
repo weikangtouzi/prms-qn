@@ -86,9 +86,9 @@ export default defineComponent({
           if (e?.data?.checkIdCardNumber) {
             this.idErr = '该身份证号已被录入或有误'
           }
-        }).catch(error => {
-          this.idErr = '请输入正确身份证号'
-          console.log(error.graphQLErrors)
+        }).catch(err => {
+          const error = err.graphQLErrors[0]?.extensions?.error
+          this.idErr = (String)(Object.values(error)[0])
         })
         // this.$apollo.addSmartQuery('checkId', {
         //   query: idCheck,

@@ -311,7 +311,6 @@ export default defineComponent({
     .err {
       position absolute
       display inline-block
-      width 100%
       font-size: (22 / $rem)
       color #fc3131
       left (22 /$rem)

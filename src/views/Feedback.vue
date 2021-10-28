@@ -1,6 +1,7 @@
 <template>
   <div class="feedback">
-    <div class="title">添加个人信息<span class="count">（已填{{ count }}份）</span></div>
+    <div class="title">添加个人信息</div>
+    <p class="count">（已填{{ count }}份）</p>
     <section>
       <h3>姓名</h3>
       <input placeholder="请填写真实姓名" v-model="name"/>
@@ -289,12 +290,13 @@ export default defineComponent({
     font-family: PingFang SC;
     font-weight: 600;
     color: #333333;
-    .count{
-      font-size: (28 / $rem);
-      color #57DE9E
-    }
-  }
 
+  }
+  .count{
+    font-weight: 600;
+    font-size: (28 / $rem);
+    color #57DE9E
+  }
   section {
     font-size 0
     border-bottom 1px solid #ECECEC;
@@ -378,7 +380,6 @@ export default defineComponent({
       cursor pointer
       border-radius: (8 /$rem);
       line-height (80 /$rem)
-      margin-right (40 / $rem)
       background: linear-gradient(90deg, #57DE9E, #81E3AE);
     }
 

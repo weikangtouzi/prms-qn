@@ -74,7 +74,7 @@ export default defineComponent({
         }
         // 身份证查重
         const idCheck = gql`query idCheck($idCardNum:String!){
-  checkIdCardNumber(idCardNum:$idCardNum)
+  QNCheckIdCardNumber(idCardNum:$idCardNum)
        }`
         this.$apollo.query({
           query: idCheck,
@@ -84,7 +84,7 @@ export default defineComponent({
           }
         }
         ).then((e) => {
-          if (e?.data?.checkIdCardNumber) {
+          if (e?.data?.QNCheckIdCardNumber) {
             this.idErr = '该身份证号已被录入或有误'
           }
         }).catch(err => {
@@ -113,7 +113,7 @@ export default defineComponent({
     },
     save: function () {
       const insertReg = gql`mutation insertPerson($info:PersonalData!){
-  insertPersonalData(info:$info)
+  QNInsertPersonalData(info:$info)
 }`
       // 验证当前表单内容的合法性
       // 同步到data
@@ -175,8 +175,8 @@ export default defineComponent({
             }
           }
         }).then(res => {
-          this.setCount(res.data.insertPersonalData)
-          localStorage.setItem('count', res.data.insertPersonalData)
+          this.setCount(res.data.QNInsertPersonalData)
+          localStorage.setItem('count', res.data.QNInsertPersonalData)
           this.saveSuccess = true
           setTimeout(() => {
             this.saveSuccess = false

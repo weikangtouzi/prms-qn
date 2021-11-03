@@ -30,7 +30,7 @@ export default defineComponent({
   methods: {
     sendMsg: function () {
       const sms = gql`query getSms($phoneNumber:String!){
-     sendSms(phoneNumber:$phoneNumber)
+     StaticSendSms(phoneNumber:$phoneNumber)
      }`
       this.checkCode().then((res) => {
         if (res !== 'error') {
@@ -44,7 +44,7 @@ export default defineComponent({
           ).then((res) => {
             const { data } = res
             console.log(data)
-            const msg = JSON.parse(data.sendSms)
+            const msg = JSON.parse(data.StaticSendSms)
             if (msg.body.message.toUpperCase() === 'OK') {
               this.startTimeOut()
               console.log('获取验证码成功')
@@ -68,7 +68,7 @@ export default defineComponent({
       console.log('通过格式认证')
       localStorage.setItem('phone', '')
       const loginReg = gql`query checkCode($phoneNumber:String!,$verifyCode:String!){
-  phoneNumberCheck(phoneNumber:$phoneNumber,verifyCode:$verifyCode)
+  QNPhoneNumberCheck(phoneNumber:$phoneNumber,verifyCode:$verifyCode)
        }`
       this.$apollo.query({
         query: loginReg,
@@ -79,9 +79,9 @@ export default defineComponent({
         }
       }
       ).then((res) => {
-        this.setCount(res.data.phoneNumberCheck)
+        this.setCount(res.data.QNPhoneNumberCheck)
         localStorage.setItem('phone', this.phone)
-        localStorage.setItem('count', res.data.phoneNumberCheck)
+        localStorage.setItem('count', res.data.QNPhoneNumberCheck)
         this.$router.push('/feedback')
         console.log('验证码验证成功')
       }).catch(error => {

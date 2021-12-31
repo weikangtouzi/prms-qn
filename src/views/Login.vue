@@ -208,11 +208,11 @@ export default defineComponent({
          display inline-block
          width: (160 / $rem)
          cursor pointer
-         height: (40 / $rem)
-         line-height: (40 / $rem)
+         height: (53 / $rem)
+         line-height: (55 / $rem)
          background: linear-gradient(90deg, #54D693, #81E3AE);
          border-radius: (8 / $rem)
-         font-size: (22 / $rem)
+         font-size: (24 / $rem)
          color white
          right 0
          top 50%
@@ -245,7 +245,7 @@ export default defineComponent({
      }
    }
   .markTip{
-    font-size 12px
+    font-size 15px
     text-align left
     color #999999
     margin-top 8px

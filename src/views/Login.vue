@@ -208,11 +208,11 @@ export default defineComponent({
          display inline-block
          width: (160 / $rem)
          cursor pointer
-         height: (53 / $rem)
-         line-height: (55 / $rem)
+         height: (60 / $rem)
+         line-height: (60 / $rem)
          background: linear-gradient(90deg, #54D693, #81E3AE);
          border-radius: (8 / $rem)
-         font-size: (24 / $rem)
+         font-size: (26 / $rem)
          color white
          right 0
          top 50%

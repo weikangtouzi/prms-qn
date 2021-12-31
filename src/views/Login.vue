@@ -1,7 +1,7 @@
 <template>
   <div class="login">
     <div class="logo">
-      劳动信息普查表
+      劳动力信息普查表
     </div>
     <div class="title">验证码登录</div>
     <div class="form">
@@ -17,6 +17,9 @@
         <a class="btn" @click="login">登录</a>
       </div>
     </div>
+    <p class="markTip">
+      注:此次普查对象为16-60岁的劳动力人员信息，但不包括公务员、事业编制人员、国企等固定编制人员。
+    </p>
   </div>
 </template>
 
@@ -34,6 +37,9 @@ export default defineComponent({
      }`
       this.checkCode().then((res) => {
         if (res !== 'error') {
+          if (this.total >= 1) {
+            return
+          }
           this.$apollo.query({
             query: sms,
             fetchPolicy: 'no-cache',
@@ -45,11 +51,12 @@ export default defineComponent({
             const { data } = res
             console.log(data)
             const msg = JSON.parse(data.StaticSendSms)
-            if (msg.body.message.toUpperCase() === 'OK') {
+            const { Code, Message } = msg.SendStatusSet[0]
+            if (Code.toUpperCase() === 'OK') {
               this.startTimeOut()
               console.log('获取验证码成功')
             } else {
-              this.errorMsg = msg.body.message
+              this.errorMsg = Message
             }
           })
         }
@@ -93,6 +100,7 @@ export default defineComponent({
   setup () {
     const phone = ref('')
     const code = ref('')
+    const total = ref(0)
     const errorMsg = ref('')
     const codeMsg = ref('获取验证码')
     const { count, setCount } = useCount()
@@ -108,12 +116,12 @@ export default defineComponent({
     }
     // 倒计时
     const startTimeOut = () => {
-      let total = 59
-      codeMsg.value = `${total}秒`
+      total.value = 59
+      codeMsg.value = `${total.value}秒`
       const timer = setInterval(() => {
-        total -= 1
-        if (total > 0) {
-          codeMsg.value = `${total}秒`
+        total.value -= 1
+        if (total.value > 0) {
+          codeMsg.value = `${total.value}秒`
         } else {
           clearInterval(timer)
           codeMsg.value = '获取验证码'
@@ -126,6 +134,7 @@ export default defineComponent({
       codeMsg,
       startTimeOut,
       checkCode,
+      total,
       code,
       count,
       setCount
@@ -235,5 +244,11 @@ export default defineComponent({
        margin-top (210 /$rem)
      }
    }
+  .markTip{
+    font-size 12px
+    text-align left
+    color #999999
+    margin-top 8px
+  }
 }
 </style>

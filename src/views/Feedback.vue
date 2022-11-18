@@ -18,7 +18,7 @@
       <span class="err" v-if="cityErr">{{ cityErr }}</span>
     </section>
     <section>
-      <h3>身份证号</h3>
+      <h3>身份证号 (选填)</h3>
       <input placeholder="请填写18位身份证号码" v-model="idCardNum" @blur="onIdCardBlur"/>
       <span class="err" v-if="idErr">{{ idErr }}</span>
     </section>
@@ -64,14 +64,17 @@ export default defineComponent({
     onIdCardBlur: function (e: { target: HTMLInputElement }) {
       this.idErr = ''
       const val = e.target.value
+      if ((val?.length ?? 0) <= 0) {
+        return
+      }
       if (!/^([1-6][1-9]|50)\d{4}(18|19|20)\d{2}((0[1-9])|10|11|12)(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/.test(val)) {
         this.idErr = '请输入正确身份证号'
       } else {
         const year = Number(val.substring(6, 10))
-        if (year > 2005 || year < 1961) {
-          this.idErr = '仅接受16到60岁的有效劳动力信息'
-          return
-        }
+        // if (year > 2005 || year < 1961) {
+        //  this.idErr = '仅接受16到60岁的有效劳动力信息'
+        //  return
+        // }
         // 身份证查重
         const idCheck = gql`query idCheck($idCardNum:String!){
   QNCheckIdCardNumber(idCardNum:$idCardNum)
@@ -137,18 +140,7 @@ export default defineComponent({
         this.phoneErr = '请输入正确手机号'
         flag = false
       }
-      if (!this.idErr) {
-        if (!/^([1-6][1-9]|50)\d{4}(18|19|20)\d{2}((0[1-9])|10|11|12)(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/.test(this.idCardNum)) {
-          this.idErr = '请输入正确身份证号'
-          flag = false
-        } else {
-          const year = Number(this.idCardNum.substring(6, 10))
-          if (year > 2005 || year < 1961) {
-            this.idErr = '仅接受16到60岁的有效劳动力信息'
-            flag = false
-          }
-        }
-      } else {
+      if (this.idErr) {
         flag = false
       }
       if (!this.grade) {
